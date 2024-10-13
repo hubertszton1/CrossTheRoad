@@ -11,6 +11,8 @@ SCREEN_HEIGHT = 1080
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+font = pygame.font.Font("font/ka1.ttf", 28)
+
 PLAYER_WIDTH = 164
 PLAYER_HEIGHT = 132
 CAR_WIDTH = 300
@@ -79,9 +81,6 @@ cars_images = [
         pygame.image.load("models/car/level20/white-mustang.png"),
     ]
 ]
-
-font = pygame.font.Font(None, 36)
-
 
 # gameplay
 class Player(pygame.sprite.Sprite):
@@ -236,6 +235,7 @@ def game():
     player_group = pygame.sprite.Group(player)  # Player sprite group
 
     level = 1
+    score = 0
     cars = create_cars(level)
 
     # Car sprites group
@@ -260,11 +260,14 @@ def game():
         player_group.draw(SCREEN)  # Draw player
 
         # Display the current level
-        level_text = font.render(f"Level: {level}", True, colors.BLACK)
-        SCREEN.blit(level_text, (10, 10))
+        level_text = font.render(f"Level  {level}", True, colors.BLACK)
+        SCREEN.blit(level_text, (30, 20))
+        score_text = font.render(f"Score  {score}", True, colors.BLACK)
+        SCREEN.blit(score_text, (SCREEN_WIDTH-250, 20))
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
+            score += level*100
             level += 1  # Go to the next level
             player.reset_position()  # Reset player position
             player.start_freeze(1000)
