@@ -17,7 +17,7 @@ CAR_WIDTH = 300
 CAR_HEIGHT = 120
 ROAD_HEIGHT = 180
 CARS = 4
-MIN_CAR_SPACING = 300  # Minimum space between cars in the same lane
+MIN_CAR_SPACING = 350  # Minimum space between cars in the same lane
 
 # background images
 bg1 = pygame.image.load('models/bg1.png')
@@ -55,13 +55,31 @@ WALK_UP_RIGHT = spritesheet.SpriteSheet(walk_up_right_img).get_sheet(8, 164, 132
 
 # cars sprites
 cars_images = [
-    pygame.image.load("models/car/white-car.png"),
-    pygame.image.load("models/car/blue-car.png"),
-    pygame.image.load("models/car/red-car.png"),
-    pygame.image.load("models/car/green-car.png"),
-    pygame.image.load("models/car/orange-car.png")
+    [
+        pygame.image.load("models/car/level1/white-car.png"),
+        pygame.image.load("models/car/level1/green-car.png"),
+        pygame.image.load("models/car/level1/red-car.png"),
+        pygame.image.load("models/car/level1/orange-car.png"),
+        pygame.image.load("models/car/level1/blue-car.png"),
+    ],
+    [
+        pygame.image.load("models/car/level10/blue-pickup.png"),
+        pygame.image.load("models/car/level10/green-pickup.png"),
+        pygame.image.load("models/car/level10/orange-pickup.png"),
+        pygame.image.load("models/car/level10/white-pickup.png"),
+        pygame.image.load("models/car/level10/red-pickup.png"),
+        pygame.image.load("models/car/level10/yellow-pickup.png"),
+    ],
+    [
+        pygame.image.load("models/car/level20/blue-mustang.png"),
+        pygame.image.load("models/car/level20/green-mustang.png"),
+        pygame.image.load("models/car/level20/orange-mustang.png"),
+        pygame.image.load("models/car/level20/purple-mustang.png"),
+        pygame.image.load("models/car/level20/red-mustang.png"),
+        pygame.image.load("models/car/level20/white-mustang.png"),
+    ]
 ]
-# Preload font for better performance
+
 font = pygame.font.Font(None, 36)
 
 
@@ -80,6 +98,7 @@ class Player(pygame.sprite.Sprite):
         self.right = False
         self.up = False
         self.down = False
+        
         self.walk_count = 0
         self.mask = pygame.mask.from_surface(self.image)  # Create the initial mask
         self.freeze = False
@@ -161,9 +180,9 @@ class Player(pygame.sprite.Sprite):
 
 
 class Car(pygame.sprite.Sprite):
-    def __init__(self, x, y, speed, image_index):
+    def __init__(self, x, y, speed, car_set, image_index):
         super().__init__()
-        self.image = cars_images[image_index]
+        self.image = cars_images[car_set][image_index]
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -180,6 +199,10 @@ class Car(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
+    if level < 20:
+        car_set = level//10
+    else:
+        car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
         y = (i + 1) * ROAD_HEIGHT + 30
 
@@ -198,8 +221,8 @@ def create_cars(level):
             # Ensure cars are spaced out enough
             if not any(abs(x_position - pos) < MIN_CAR_SPACING for pos in car_positions):
                 car_positions.append(x_position)  # Add valid position
-                image_index = random.randint(0, 4)  # Randomly select a car image index
-                car = Car(x_position, y, lane_speed, image_index)  # Pass image_index here
+                image_index = random.randint(0, len(cars_images[car_set])-1)  # Randomly select a car image index
+                car = Car(x_position, y, lane_speed, car_set, image_index)  # Pass image_index here
                 cars.append(car)  # Store Car object directly, not a tuple
 
     return cars
