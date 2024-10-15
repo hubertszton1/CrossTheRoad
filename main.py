@@ -13,7 +13,7 @@ SCREEN_HEIGHT = int(1080 // SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-font = pygame.font.Font("font/ka1.ttf", 18)
+font = pygame.font.Font("font/ka1.ttf", int(30//SCALE))
 
 PLAYER_WIDTH = 164 // SCALE
 PLAYER_HEIGHT = 132 // SCALE
@@ -64,20 +64,20 @@ cars_images = [
         pygame.transform.scale(pygame.image.load("models/car/level1/red-car.png"), (220 // SCALE, 130 // SCALE)),
     ],
     [
-        pygame.image.load("models/car/level10/blue-pickup.png"),
-        pygame.image.load("models/car/level10/green-pickup.png"),
-        pygame.image.load("models/car/level10/orange-pickup.png"),
-        pygame.image.load("models/car/level10/white-pickup.png"),
-        pygame.image.load("models/car/level10/red-pickup.png"),
-        pygame.image.load("models/car/level10/yellow-pickup.png"),
+        pygame.transform.scale(pygame.image.load("models/car/level10/blue-pickup.png"), (246 // SCALE, 120 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level10/green-pickup.png"), (246 // SCALE, 120 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level10/white-pickup.png"), (246 // SCALE, 120 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level10/red-pickup.png"), (246 // SCALE, 120 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level10/orange-pickup.png"), (246 // SCALE, 120 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level10/yellow-pickup.png"), (246 // SCALE, 120 // SCALE)),
     ],
     [
-        pygame.image.load("models/car/level20/blue-mustang.png"),
-        pygame.image.load("models/car/level20/green-mustang.png"),
-        pygame.image.load("models/car/level20/orange-mustang.png"),
-        pygame.image.load("models/car/level20/purple-mustang.png"),
-        pygame.image.load("models/car/level20/red-mustang.png"),
-        pygame.image.load("models/car/level20/white-mustang.png"),
+        pygame.transform.scale(pygame.image.load("models/car/level20/blue-mustang.png"), (231 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level20/green-mustang.png"), (231 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level20/orange-mustang.png"), (231 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level20/purple-mustang.png"), (231 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level20/red-mustang.png"), (231 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level20/white-mustang.png"), (231 // SCALE, 130 // SCALE)),
     ]
 ]
 
@@ -198,8 +198,8 @@ class Car(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 20:
-        car_set = level//10
+    if level < 9:
+        car_set = level//3
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
@@ -262,14 +262,14 @@ def game():
 
         # Display the current level
         level_text = font.render(f"Level  {level}", True, colors.BLACK)
-        SCREEN.blit(level_text, (30, 20))
+        SCREEN.blit(level_text, (20, 20))
         score_text = font.render(f"Score  {score}", True, colors.BLACK)
-        SCREEN.blit(score_text, (SCREEN_WIDTH-(250//SCALE), 20))
+        SCREEN.blit(score_text, (20, 50))
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
             level_time = (pygame.time.get_ticks() - start_time) // 1000 # time taken to pass the level in seconds
-            score += level*100 + int((level*100)/level_time)
+            score += level*10 + int((level*10)/level_time)
             level += 1  # Go to the next level
             player.reset_position()  # Reset player position
             player.start_freeze(1000)
