@@ -5,64 +5,63 @@ import spritesheet
 
 pygame.init()
 
+SCALE = 1.5
+
 # Screen dimensions
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+SCREEN_WIDTH = int(1920 // SCALE)
+SCREEN_HEIGHT = int(1080 // SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-font = pygame.font.Font("font/ka1.ttf", 28)
+font = pygame.font.Font("font/ka1.ttf", 18)
 
-PLAYER_WIDTH = 164
-PLAYER_HEIGHT = 132
-CAR_WIDTH = 300
-CAR_HEIGHT = 120
-ROAD_HEIGHT = 180
+PLAYER_WIDTH = 164 // SCALE
+PLAYER_HEIGHT = 132 // SCALE
+CAR_WIDTH = 300 // SCALE
+CAR_HEIGHT = 120 // SCALE
+ROAD_HEIGHT = 180 // SCALE
 CARS = 4
-MIN_CAR_SPACING = 350  # Minimum space between cars in the same lane
+MIN_CAR_SPACING = 350 // SCALE  # Minimum space between cars in the same lane
 
 # background images
-bg1 = pygame.image.load('models/bg1.png')
+bg1 = pygame.transform.scale(pygame.image.load('models/bg1.png'),(1920//SCALE, 1080//SCALE))
 
 # animation sprites
-idle_img = pygame.image.load("models/dog/idle.png")
-idle_rect = idle_img.get_rect()
-idle_mask = pygame.mask.from_surface(idle_img)
-mask_img = idle_mask.to_surface()
-IDLE = spritesheet.SpriteSheet(idle_img).get_sheet(8, 164, 132, scale=0.9)
+idle_img = pygame.image.load('models/dog/idle.png')
+IDLE = spritesheet.SpriteSheet(idle_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_down_img = pygame.image.load("models/dog/walk_down.png")
-WALK_DOWN = spritesheet.SpriteSheet(walk_down_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_DOWN = spritesheet.SpriteSheet(walk_down_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_down_left_img = pygame.image.load("models/dog/walk_down_left.png")
-WALK_DOWN_LEFT = spritesheet.SpriteSheet(walk_down_left_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_DOWN_LEFT = spritesheet.SpriteSheet(walk_down_left_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_down_right_img = pygame.image.load("models/dog/walk_down_right.png")
-WALK_DOWN_RIGHT = spritesheet.SpriteSheet(walk_down_right_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_DOWN_RIGHT = spritesheet.SpriteSheet(walk_down_right_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_left_img = pygame.image.load("models/dog/walk_left.png")
-WALK_LEFT = spritesheet.SpriteSheet(walk_left_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_LEFT = spritesheet.SpriteSheet(walk_left_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_right_img = pygame.image.load("models/dog/walk_right.png")
-WALK_RIGHT = spritesheet.SpriteSheet(walk_right_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_RIGHT = spritesheet.SpriteSheet(walk_right_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_up_img = pygame.image.load("models/dog/walk_up.png")
-WALK_UP = spritesheet.SpriteSheet(walk_up_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_UP = spritesheet.SpriteSheet(walk_up_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_up_left_img = pygame.image.load("models/dog/walk_up_left.png")
-WALK_UP_LEFT = spritesheet.SpriteSheet(walk_up_left_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_UP_LEFT = spritesheet.SpriteSheet(walk_up_left_img).get_sheet(8, 164, 132, scale=SCALE)
 
 walk_up_right_img = pygame.image.load("models/dog/walk_up_right.png")
-WALK_UP_RIGHT = spritesheet.SpriteSheet(walk_up_right_img).get_sheet(8, 164, 132, scale=0.9)
+WALK_UP_RIGHT = spritesheet.SpriteSheet(walk_up_right_img).get_sheet(8, 164, 132, scale=SCALE)
 
 # cars sprites
 cars_images = [
     [
-        pygame.image.load("models/car/level1/white-car.png"),
-        pygame.image.load("models/car/level1/green-car.png"),
-        pygame.image.load("models/car/level1/red-car.png"),
-        pygame.image.load("models/car/level1/orange-car.png"),
-        pygame.image.load("models/car/level1/blue-car.png"),
+        pygame.transform.scale(pygame.image.load("models/car/level1/white-car.png"), (220 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level1/green-car.png"), (220 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level1/blue-car.png"), (220 //SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level1/orange-car.png"), (220 // SCALE, 130 // SCALE)),
+        pygame.transform.scale(pygame.image.load("models/car/level1/red-car.png"), (220 // SCALE, 130 // SCALE)),
     ],
     [
         pygame.image.load("models/car/level10/blue-pickup.png"),
@@ -99,6 +98,7 @@ class Player(pygame.sprite.Sprite):
         self.down = False
         
         self.walk_count = 0
+        
         self.mask = pygame.mask.from_surface(self.image)  # Create the initial mask
         self.freeze = False
         self.freeze_timer = 0
@@ -175,7 +175,7 @@ class Player(pygame.sprite.Sprite):
 
     def reset_position(self):
         self.rect.x = ((SCREEN_WIDTH - PLAYER_WIDTH) // 2)
-        self.rect.y = SCREEN_HEIGHT - PLAYER_HEIGHT - 10
+        self.rect.y = SCREEN_HEIGHT - PLAYER_HEIGHT - (10//SCALE)
 
 
 class Car(pygame.sprite.Sprite):
@@ -203,7 +203,7 @@ def create_cars(level):
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
-        y = (i + 1) * ROAD_HEIGHT + 30
+        y = (i + 1) * ROAD_HEIGHT + (30//SCALE)
 
         num_cars_in_lane = random.randint(1 + level//15, 2 + level//10)  # Random number of cars in each lane
 
@@ -231,7 +231,7 @@ def game():
     clock = pygame.time.Clock()
 
     # Player initialization
-    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, SCREEN_HEIGHT - PLAYER_HEIGHT - 10, PLAYER_WIDTH, PLAYER_HEIGHT)
+    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT - 20), PLAYER_WIDTH, PLAYER_HEIGHT)
     player_group = pygame.sprite.Group(player)  # Player sprite group
 
     level = 1
@@ -263,7 +263,7 @@ def game():
         level_text = font.render(f"Level  {level}", True, colors.BLACK)
         SCREEN.blit(level_text, (30, 20))
         score_text = font.render(f"Score  {score}", True, colors.BLACK)
-        SCREEN.blit(score_text, (SCREEN_WIDTH-250, 20))
+        SCREEN.blit(score_text, (SCREEN_WIDTH-(250//SCALE), 20))
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:

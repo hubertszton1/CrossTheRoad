@@ -9,7 +9,7 @@ class SpriteSheet():
         image.fill(color=color)
         image.blit(self.sheet,(0,0), (frame*width, 0, width, height))
         image.set_colorkey(color)
-        image = pygame.transform.scale(image, (width * scale, height * scale))
+        image = pygame.transform.scale(image, (width // scale, height // scale))
         return image
 
     def get_sheet(self, size, width, height, color=(0, 255, 255), scale=1):
