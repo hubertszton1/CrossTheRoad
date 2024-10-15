@@ -229,6 +229,7 @@ def create_cars(level):
 
 def game():
     clock = pygame.time.Clock()
+    start_time = pygame.time.get_ticks()
 
     # Player initialization
     player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, SCREEN_HEIGHT - PLAYER_HEIGHT - 10, PLAYER_WIDTH, PLAYER_HEIGHT)
@@ -267,11 +268,13 @@ def game():
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
-            score += level*100
+            level_time = (pygame.time.get_ticks() - start_time) // 1000 # time taken to pass the level in seconds
+            score += level*100 + int((level*100)/level_time)
             level += 1  # Go to the next level
             player.reset_position()  # Reset player position
             player.start_freeze(1000)
 
+            start_time = pygame.time.get_ticks()
             cars = create_cars(level)  # Create new cars for the new level
             car_group.empty()  # Clear previous cars
             for car in cars:
