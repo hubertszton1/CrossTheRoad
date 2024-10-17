@@ -198,8 +198,8 @@ class Car(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 9:
-        car_set = level//3
+    if level < 20:
+        car_set = level//10
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
@@ -287,6 +287,7 @@ def game():
         # Collision detection using collide_mask
         if pygame.sprite.spritecollide(player, car_group, False, pygame.sprite.collide_mask):
             level = 1  # Go to the next level
+            score = 0
             cars = create_cars(level)  # Create new cars for the new level
             car_group.empty()  # Clear previous cars
             for car in cars:
