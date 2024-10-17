@@ -13,7 +13,7 @@ SCREEN_HEIGHT = int(1080 // SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-font = pygame.font.Font("font/ka1.ttf", int(30//SCALE))
+font = pygame.font.Font("font/ARCADECLASSIC.ttf", int(40//SCALE))
 
 PLAYER_WIDTH = 164 // SCALE
 PLAYER_HEIGHT = 132 // SCALE
@@ -24,7 +24,7 @@ CARS = 4
 MIN_CAR_SPACING = 350 // SCALE  # Minimum space between cars in the same lane
 
 # background images
-bg1 = pygame.transform.scale(pygame.image.load('models/bg1.png'),(1920//SCALE, 1080//SCALE))
+bg1 = pygame.transform.scale(pygame.image.load('models/bg2.3.png'),(1920//SCALE, 1080//SCALE))
 
 # animation sprites
 idle_img = pygame.image.load('models/dog/idle.png')
@@ -203,7 +203,7 @@ def create_cars(level):
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
-        y = (i + 1) * ROAD_HEIGHT + (30//SCALE)
+        y = (i + 1) * ROAD_HEIGHT + (20//SCALE)
 
         num_cars_in_lane = random.randint(1 + level//15, 2 + level//10)  # Random number of cars in each lane
 
@@ -261,10 +261,10 @@ def game():
         player_group.draw(SCREEN)  # Draw player
 
         # Display the current level
-        level_text = font.render(f"Level  {level}", True, colors.BLACK)
-        SCREEN.blit(level_text, (20, 20))
-        score_text = font.render(f"Score  {score}", True, colors.BLACK)
-        SCREEN.blit(score_text, (20, 50))
+        level_text = font.render(f"Level  {level}", True, colors.WHITE)
+        SCREEN.blit(level_text, (18, 20))
+        score_text = font.render(f"Score  {score}", True, colors.WHITE)
+        SCREEN.blit(score_text, (18, 50))
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
@@ -287,6 +287,7 @@ def game():
         # Collision detection using collide_mask
         if pygame.sprite.spritecollide(player, car_group, False, pygame.sprite.collide_mask):
             level = 1  # Go to the next level
+            scole =0
             cars = create_cars(level)  # Create new cars for the new level
             car_group.empty()  # Clear previous cars
             for car in cars:
