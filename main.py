@@ -13,7 +13,7 @@ SCREEN_HEIGHT = int(1080 // SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-font = pygame.font.Font("font/ARCADECLASSIC.ttf", int(40//SCALE))
+font = pygame.font.Font("font/ThaleahFat.ttf", int(52//SCALE))
 
 PLAYER_WIDTH = 164 // SCALE
 PLAYER_HEIGHT = 132 // SCALE
@@ -21,10 +21,15 @@ CAR_WIDTH = 300 // SCALE
 CAR_HEIGHT = 120 // SCALE
 ROAD_HEIGHT = 180 // SCALE
 CARS = 4
-MIN_CAR_SPACING = 350 // SCALE  # Minimum space between cars in the same lane
+MIN_CAR_SPACING = 280 // SCALE  # Minimum space between cars in the same lane
 
 # background images
-bg1 = pygame.transform.scale(pygame.image.load('models/bg2.3.png'),(1920//SCALE, 1080//SCALE))
+backgrounds = [
+    pygame.transform.scale(pygame.image.load('models/bg1.png'),(1920//SCALE, 1080//SCALE)),
+    pygame.transform.scale(pygame.image.load('models/bg2.png'),(1920//SCALE, 1080//SCALE)),
+    pygame.transform.scale(pygame.image.load('models/bg3.png'),(1920//SCALE, 1080//SCALE)),
+]
+bg1 = pygame.transform.scale(pygame.image.load('models/bg1.png'),(1920//SCALE, 1080//SCALE))
 
 # animation sprites
 idle_img = pygame.image.load('models/dog/idle.png')
@@ -198,14 +203,14 @@ class Car(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 9:
-        car_set = level//3
+    if level < 15:
+        car_set = level//5
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
         y = (i + 1) * ROAD_HEIGHT + (20//SCALE)
 
-        num_cars_in_lane = random.randint(1 + level//15, 2 + level//10)  # Random number of cars in each lane
+        num_cars_in_lane = random.randint(1, 1 + level//5)  # Random number of cars in each lane
 
         # Generate a random speed for the entire lane
         lane_speed = random.randint(2, 5) + level/10 - 1
@@ -226,7 +231,20 @@ def create_cars(level):
 
     return cars
 
-
+def render_text_with_outline(x, y, font, string, color, outline_color, size, surface):
+    base = font.render(string, True, color)
+    outline = font.render(string, True, outline_color)
+    # top left
+    surface.blit(outline, (x - size, y - size))
+    # top right
+    surface.blit(outline, (x + size, y - size))
+    # bot left
+    surface.blit(outline, (x - size, y + size))
+    # bot right
+    surface.blit(outline, (x + size, y + size))
+    # base
+    surface.blit(base, (x, y))
+    
 def game():
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
@@ -247,7 +265,7 @@ def game():
     running = True
     while running:
         clock.tick(FPS)
-        SCREEN.blit(bg1, (0, 0))
+        SCREEN.blit(backgrounds[level//5], (0, 0))
 
         # Handle events
         for event in pygame.event.get():
@@ -260,11 +278,9 @@ def game():
         player.update(keys)
         player_group.draw(SCREEN)  # Draw player
 
-        # Display the current level
-        level_text = font.render(f"Level  {level}", True, colors.WHITE)
-        SCREEN.blit(level_text, (18, 20))
-        score_text = font.render(f"Score  {score}", True, colors.WHITE)
-        SCREEN.blit(score_text, (18, 50))
+        # Display the current level and score
+        render_text_with_outline(20, 655, font, f"Level  {level}", colors.WHITE, colors.BLACK, 2, SCREEN)
+        render_text_with_outline(20, 680, font, f"Score  {score}", colors.WHITE, colors.BLACK, 2, SCREEN)
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
@@ -287,7 +303,7 @@ def game():
         # Collision detection using collide_mask
         if pygame.sprite.spritecollide(player, car_group, False, pygame.sprite.collide_mask):
             level = 1  # Go to the next level
-            scole =0
+            score =0
             cars = create_cars(level)  # Create new cars for the new level
             car_group.empty()  # Clear previous cars
             for car in cars:
