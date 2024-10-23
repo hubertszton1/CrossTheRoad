@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 import colors
 import spritesheet
 
@@ -13,7 +14,8 @@ SCREEN_HEIGHT = int(1080 // SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-font = pygame.font.Font("font/ThaleahFat.ttf", int(52//SCALE))
+FONT = pygame.font.Font("font/ThaleahFat.ttf", int(52//SCALE))
+GAME_OVER_FONT =pygame.font.Font("font/ThaleahFat.ttf", int(80//SCALE))
 
 PLAYER_WIDTH = 164 // SCALE
 PLAYER_HEIGHT = 132 // SCALE
@@ -181,7 +183,7 @@ class Player(pygame.sprite.Sprite):
     def reset_position(self):
         self.rect.x = ((SCREEN_WIDTH - PLAYER_WIDTH) // 2)
         self.rect.y = SCREEN_HEIGHT - PLAYER_HEIGHT - (10//SCALE)
-
+    
 
 class Car(pygame.sprite.Sprite):
     def __init__(self, x, y, speed, car_set, image_index):
@@ -231,9 +233,7 @@ def create_cars(level):
 
     return cars
 
-def render_text_with_outline(x, y, font, string, color, outline_color, size, surface):
-    base = font.render(string, True, color)
-    outline = font.render(string, True, outline_color)
+def render_text_with_outline(x, y,base, outline, size, surface):
     # top left
     surface.blit(outline, (x - size, y - size))
     # top right
@@ -244,7 +244,42 @@ def render_text_with_outline(x, y, font, string, color, outline_color, size, sur
     surface.blit(outline, (x + size, y + size))
     # base
     surface.blit(base, (x, y))
+
+def game_over(surface, level, score):
     
+    game_over_base = GAME_OVER_FONT.render("GAME OVER", True, colors.RED)
+    game_over_outline = GAME_OVER_FONT.render("GAME OVER", True, colors.BLACK)
+    level_base = GAME_OVER_FONT.render(f"LEVEL: {level}", True, colors.YELLOW)
+    level_outline = GAME_OVER_FONT.render(f"LEVEL: {level}", True, colors.BLACK)
+    score_base = GAME_OVER_FONT.render(f"SCORE: {score}", True, colors.YELLOW)
+    score_outline = GAME_OVER_FONT.render(f"SCORE: {score}", True, colors.BLACK)
+    play_again_base = FONT.render("Press any key to play again", True, colors.WHITE)
+    play_again_outline = FONT.render("Press any key to play again", True, colors.BLACK)
+
+    game_over_width = game_over_base.get_width()
+    level_width = level_base.get_width()
+    score_width = score_base.get_width()
+    play_again_width = play_again_base.get_width()
+
+
+    render_text_with_outline((SCREEN_WIDTH//2) - (game_over_width//2), (SCREEN_HEIGHT//2) - 50, game_over_base, game_over_outline, 3, surface)
+    render_text_with_outline((SCREEN_WIDTH//2) - (level_width//2), (SCREEN_HEIGHT//2), level_base, level_outline, 3, surface)
+    render_text_with_outline((SCREEN_WIDTH//2) - (score_width//2), (SCREEN_HEIGHT//2) + 50, score_base, score_outline, 3, surface)
+    render_text_with_outline((SCREEN_WIDTH//2) - (play_again_width//2), (SCREEN_HEIGHT//2) + 100, play_again_base, play_again_outline, 2, surface)
+
+    pygame.display.flip()  # Aktualizuj ekran, żeby wyświetlić teksty
+    pygame.time.delay(2000)
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()  # Zamknij grę
+            if event.type == pygame.KEYDOWN:  # Sprawdza, czy dowolny klawisz został wciśnięty
+                waiting = False  # Wyjdź z pętli po naciśnięciu klawisza
+                return  # Powróć do funkcji game(), aby zresetować grę
+
 def game():
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
@@ -259,7 +294,7 @@ def game():
 
     # Car sprites group
     car_group = pygame.sprite.Group()
-    for car in cars:  # No need for tuples anymore, just add Car objects
+    for car in cars:
         car_group.add(car)
 
     running = True
@@ -279,8 +314,12 @@ def game():
         player_group.draw(SCREEN)  # Draw player
 
         # Display the current level and score
-        render_text_with_outline(20, 655, font, f"Level  {level}", colors.WHITE, colors.BLACK, 2, SCREEN)
-        render_text_with_outline(20, 680, font, f"Score  {score}", colors.WHITE, colors.BLACK, 2, SCREEN)
+        level_base_text = FONT.render(f"Level  {level}", True, colors.WHITE)
+        level_outline_text = FONT.render(f"Level  {level}", True, colors.BLACK)
+        render_text_with_outline(20, 655, level_base_text, level_outline_text, 2, SCREEN)
+        score_base_text = FONT.render(f"Score  {score}", True, colors.WHITE)
+        score_outline_text = FONT.render(f"Score  {score}", True, colors.BLACK)
+        render_text_with_outline(20, 680, score_base_text, score_outline_text, 2, SCREEN)
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
@@ -302,19 +341,17 @@ def game():
 
         # Collision detection using collide_mask
         if pygame.sprite.spritecollide(player, car_group, False, pygame.sprite.collide_mask):
-            level = 1  # Go to the next level
-            score =0
-            cars = create_cars(level)  # Create new cars for the new level
-            car_group.empty()  # Clear previous cars
-            for car in cars:
-                car_group.add(car)
-            player.reset_position()  # Reset player position
-            player.start_freeze(500)
+            # Wywołaj funkcję game_over i poczekaj, aż użytkownik wciśnie przycisk
+            game_over(SCREEN, level, score)
+            
+            # Zresetuj grę po Game Over (restart całej funkcji)
+            return game()  # Restartuj grę, zamiast zamykać okno
 
         # Update display
         pygame.display.flip()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     game()
