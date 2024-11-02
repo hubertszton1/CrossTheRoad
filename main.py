@@ -17,13 +17,13 @@ SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 FONT = pygame.font.Font("font/ThaleahFat.ttf", int(52//SCALE))
 GAME_OVER_FONT =pygame.font.Font("font/ThaleahFat.ttf", int(80//SCALE))
 
-PLAYER_WIDTH = 164 // SCALE
-PLAYER_HEIGHT = 132 // SCALE
-CAR_WIDTH = 300 // SCALE
-CAR_HEIGHT = 120 // SCALE
-ROAD_HEIGHT = 180 // SCALE
+PLAYER_WIDTH = int(164 // SCALE)
+PLAYER_HEIGHT = int(132 // SCALE)
+CAR_WIDTH = int(300 // SCALE)
+CAR_HEIGHT = int(120 // SCALE)
+ROAD_HEIGHT = int(180 // SCALE)
 CARS = 4
-MIN_CAR_SPACING = 280 // SCALE  # Minimum space between cars in the same lane
+MIN_CAR_SPACING = int(280 // SCALE)  # Minimum space between cars in the same lane
 
 # background images
 backgrounds = [
@@ -31,7 +31,8 @@ backgrounds = [
     pygame.transform.scale(pygame.image.load('models/bg2.png'),(1920//SCALE, 1080//SCALE)),
     pygame.transform.scale(pygame.image.load('models/bg3.png'),(1920//SCALE, 1080//SCALE)),
 ]
-bg1 = pygame.transform.scale(pygame.image.load('models/bg1.png'),(1920//SCALE, 1080//SCALE))
+
+bone_img = pygame.image.load('models/bone2.png')
 
 # animation sprites
 idle_img = pygame.image.load('models/dog/idle.png')
@@ -88,6 +89,7 @@ cars_images = [
     ]
 ]
 
+
 # gameplay
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, speed=5):
@@ -103,11 +105,10 @@ class Player(pygame.sprite.Sprite):
         self.right = False
         self.up = False
         self.down = False
-        
         self.walk_count = 0
-        
         self.mask = pygame.mask.from_surface(self.image)  # Create the initial mask
         self.freeze = False
+        self.bonus =False
         self.freeze_timer = 0
         self.blink_counter = 0
 
@@ -202,6 +203,15 @@ class Car(pygame.sprite.Sprite):
         if self.rect.x < -self.rect.width:
             self.rect.x = SCREEN_WIDTH
 
+class Bone(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = bone_img
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.mask = pygame.mask.from_surface(self.image)
+        self.display = random.randint(0, 99) < 50
 
 def create_cars(level):
     cars = []
@@ -232,6 +242,11 @@ def create_cars(level):
                 cars.append(car)  # Store Car object directly, not a tuple
 
     return cars
+
+def create_bone():
+    x_posistion = random.randint(0, SCREEN_WIDTH)
+    y_position = random.randint(ROAD_HEIGHT, SCREEN_HEIGHT - ROAD_HEIGHT)
+    return Bone(x_posistion, y_position)
 
 def render_text_with_outline(x, y,base, outline, size, surface):
     # top left
@@ -283,20 +298,18 @@ def game_over(surface, level, score):
 def game():
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
+    level = 1
+    score = 0
 
     # Player initialization
     player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT - 20), PLAYER_WIDTH, PLAYER_HEIGHT)
     player_group = pygame.sprite.Group(player)  # Player sprite group
-
-    level = 1
-    score = 0
     cars = create_cars(level)
-
-    # Car sprites group
     car_group = pygame.sprite.Group()
     for car in cars:
         car_group.add(car)
-
+    bone = create_bone()
+    bone_group = pygame.sprite.Group(bone)
     running = True
     while running:
         clock.tick(FPS)
@@ -324,7 +337,11 @@ def game():
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
             level_time = (pygame.time.get_ticks() - start_time) // 1000 # time taken to pass the level in seconds
-            score += level*10 + int((level*10)/level_time)
+            if player.bonus:
+                score += level*100 + int((level*100)/level_time)*2
+                player.bonus = False
+            else:
+                score += level*100 + int((level*100)/level_time)*2
             level += 1  # Go to the next level
             player.reset_position()  # Reset player position
             player.start_freeze(1000)
@@ -334,6 +351,11 @@ def game():
             car_group.empty()  # Clear previous cars
             for car in cars:
                 car_group.add(car)
+            bone = create_bone()
+            bone_group = pygame.sprite.Group(bone)
+
+        if bone.display:
+            bone_group.draw(SCREEN)
 
         # Update and draw cars
         car_group.update()
@@ -345,6 +367,11 @@ def game():
             game_over(SCREEN, level, score)
             # Zresetuj grę po Game Over (restart całej funkcji)
             return game()  # Restartuj grę, zamiast zamykać okno
+
+        if pygame.sprite.spritecollide(player, bone_group, False, pygame.sprite.collide_mask):
+            bone.display = False
+            player.bonus = True
+
 
         # Update display
         pygame.display.flip()
