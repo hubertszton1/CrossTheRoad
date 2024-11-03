@@ -6,11 +6,11 @@ import spritesheet
 
 pygame.init()
 
-SCALE = 1.5
-
-# Screen dimensions
-SCREEN_WIDTH = int(1920 // SCALE)
-SCREEN_HEIGHT = int(1080 // SCALE)
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 600
+WIDTH_SCALE = 1920 / SCREEN_WIDTH
+HEIGHT_SCALE = 1080 / SCREEN_HEIGHT
+SCALE = min(WIDTH_SCALE, HEIGHT_SCALE)
 FPS = 60
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -32,7 +32,7 @@ backgrounds = [
     pygame.transform.scale(pygame.image.load('models/bg3.png'),(1920//SCALE, 1080//SCALE)),
 ]
 
-bone_img = pygame.image.load('models/bone2.png')
+bone_img = pygame.transform.scale(pygame.image.load('models/bone.png'), (70//SCALE, 70//SCALE))
 
 # animation sprites
 idle_img = pygame.image.load('models/dog/idle.png')
@@ -215,17 +215,17 @@ class Bone(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 15:
-        car_set = level//5
+    if level < 30:
+        car_set = level//10
     else:
         car_set = 2
     for i in range(CARS):  # NUMBER OF LANES
         y = (i + 1) * ROAD_HEIGHT + (20//SCALE)
 
-        num_cars_in_lane = random.randint(1, 1 + level//5)  # Random number of cars in each lane
+        num_cars_in_lane = random.randint(1, 1 + level//10)  # Random number of cars in each lane
 
         # Generate a random speed for the entire lane
-        lane_speed = random.randint(2, 5) + level/10 - 1
+        lane_speed = round((random.randint(3, 6) + level/10 - 1)/SCALE)
 
         car_positions = []  # Store positions of cars in the current lane
 
@@ -302,7 +302,7 @@ def game():
     score = 0
 
     # Player initialization
-    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT - 20), PLAYER_WIDTH, PLAYER_HEIGHT)
+    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT - 20), PLAYER_WIDTH, PLAYER_HEIGHT, round(5/SCALE))
     player_group = pygame.sprite.Group(player)  # Player sprite group
     cars = create_cars(level)
     car_group = pygame.sprite.Group()
@@ -313,7 +313,10 @@ def game():
     running = True
     while running:
         clock.tick(FPS)
-        SCREEN.blit(backgrounds[level//5], (0, 0))
+        if level < 30:
+            SCREEN.blit(backgrounds[level//10], (0, 0))
+        else:
+            SCREEN.blit(backgrounds[2], (0, 0))
 
         # Handle events
         for event in pygame.event.get():
@@ -329,10 +332,10 @@ def game():
         # Display the current level and score
         level_base_text = FONT.render(f"Level  {level}", True, colors.WHITE)
         level_outline_text = FONT.render(f"Level  {level}", True, colors.BLACK)
-        render_text_with_outline(20, 655, level_base_text, level_outline_text, 2, SCREEN)
+        render_text_with_outline(20, (SCREEN_HEIGHT - 100//SCALE), level_base_text, level_outline_text, 2, SCREEN)
         score_base_text = FONT.render(f"Score  {score}", True, colors.WHITE)
         score_outline_text = FONT.render(f"Score  {score}", True, colors.BLACK)
-        render_text_with_outline(20, 680, score_base_text, score_outline_text, 2, SCREEN)
+        render_text_with_outline(20, (SCREEN_HEIGHT - 60//SCALE), score_base_text, score_outline_text, 2, SCREEN)
 
         # Check if player reaches the top
         if player.rect.y <= 0 and not player.freeze:
