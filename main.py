@@ -107,75 +107,56 @@ class Player(pygame.sprite.Sprite):
         self.down = False
         self.walk_count = 0
         self.mask = pygame.mask.from_surface(self.image)  # Create the initial mask
-        self.freeze = False
         self.bonus =False
-        self.freeze_timer = 0
         self.blink_counter = 0
 
     def update(self, keys):
-        if not self.freeze:
-            dx = 0
-            dy = 0
-            self.left = self.right = self.up = self.down = False
-            if keys[pygame.K_LEFT]:
-                dx = -self.speed
-                self.left = True
-            if keys[pygame.K_RIGHT]:
-                dx = self.speed
-                self.right = True
-            if keys[pygame.K_UP]:
-                dy = -self.speed
-                self.up = True
-            if keys[pygame.K_DOWN]:
-                dy = self.speed
-                self.down = True
+        dx = 0
+        dy = 0
+        self.left = self.right = self.up = self.down = False
+        if keys[pygame.K_LEFT]:
+            dx = -self.speed
+            self.left = True
+        if keys[pygame.K_RIGHT]:
+            dx = self.speed
+            self.right = True
+        if keys[pygame.K_UP]:
+            dy = -self.speed
+            self.up = True
+        if keys[pygame.K_DOWN]:
+            dy = self.speed
+            self.down = True
 
-            # Movement and boundary checking
-            self.rect.x = max(0, min(self.rect.x + dx, SCREEN_WIDTH - self.width))
-            self.rect.y = max(0, min(self.rect.y + dy, SCREEN_HEIGHT - self.height))
+        # Movement and boundary checking
+        self.rect.x = max(0, min(self.rect.x + dx, SCREEN_WIDTH - self.width))
+        self.rect.y = max(0, min(self.rect.y + dy, SCREEN_HEIGHT - self.height))
 
         self.animate()
 
-    def start_freeze(self, duration):
-        self.freeze = True
-        self.freeze_timer = pygame.time.get_ticks() + duration
-
-    def check_freeze(self):
-        if self.freeze and pygame.time.get_ticks() > self.freeze_timer:
-            self.freeze = False
-
     def animate(self):
-        if not self.freeze:
-            # Animation logic based on direction
-            if self.walk_count + 1 >= 40:
-                self.walk_count = 0
-            if self.left:
-                if self.up:
-                    self.image = WALK_UP_LEFT[self.walk_count // 5]
-                elif self.down:
-                    self.image = WALK_DOWN_LEFT[self.walk_count // 5]
-                else:
-                    self.image = WALK_LEFT[self.walk_count // 5]
-            elif self.right:
-                if self.up:
-                    self.image = WALK_UP_RIGHT[self.walk_count // 5]
-                elif self.down:
-                    self.image = WALK_DOWN_RIGHT[self.walk_count // 5]
-                else:
-                    self.image = WALK_RIGHT[self.walk_count // 5]
-            elif self.up:
-                self.image = WALK_UP[self.walk_count // 5]
+        # Animation logic based on direction
+        if self.walk_count + 1 >= 40:
+            self.walk_count = 0
+        if self.left:
+            if self.up:
+                self.image = WALK_UP_LEFT[self.walk_count // 5]
             elif self.down:
-                self.image = WALK_DOWN[self.walk_count // 5]
+                self.image = WALK_DOWN_LEFT[self.walk_count // 5]
             else:
-                self.image = IDLE[self.walk_count // 5]
+                self.image = WALK_LEFT[self.walk_count // 5]
+        elif self.right:
+            if self.up:
+                self.image = WALK_UP_RIGHT[self.walk_count // 5]
+            elif self.down:
+                self.image = WALK_DOWN_RIGHT[self.walk_count // 5]
+            else:
+                self.image = WALK_RIGHT[self.walk_count // 5]
+        elif self.up:
+            self.image = WALK_UP[self.walk_count // 5]
+        elif self.down:
+            self.image = WALK_DOWN[self.walk_count // 5]
         else:
-            self.image = IDLE[0]
-            self.blink_counter += 1
-            if self.blink_counter % 20 < 10:  # Every 10 frames, toggle visibility
-                self.image.set_alpha(0)  # Invisible
-            else:
-                self.image.set_alpha(255) 
+            self.image = IDLE[self.walk_count // 5]
 
         # Update the mask and rect
         self.mask = pygame.mask.from_surface(self.image)
@@ -225,7 +206,8 @@ def create_cars(level):
         num_cars_in_lane = random.randint(1, 1 + level//10)  # Random number of cars in each lane
 
         # Generate a random speed for the entire lane
-        lane_speed = round((random.randint(3, 6) + level/10 - 1)/SCALE)
+        lane_speed = random.randint(2, 6) + (level/20) - 1
+        lane_speed = round(lane_speed/SCALE, 3)
 
         car_positions = []  # Store positions of cars in the current lane
 
@@ -282,8 +264,7 @@ def game_over(surface, level, score):
     render_text_with_outline((SCREEN_WIDTH//2) - (score_width//2), (SCREEN_HEIGHT//2) + 50, score_base, score_outline, 3, surface)
     render_text_with_outline((SCREEN_WIDTH//2) - (play_again_width//2), (SCREEN_HEIGHT//2) + 100, play_again_base, play_again_outline, 2, surface)
 
-    pygame.display.flip()  # Aktualizuj ekran, żeby wyświetlić teksty
-    pygame.time.delay(2000)
+    pygame.display.flip()
 
     waiting = True
     while waiting:
@@ -325,7 +306,6 @@ def game():
 
         # Player movement
         keys = pygame.key.get_pressed()
-        player.check_freeze()
         player.update(keys)
         player_group.draw(SCREEN)  # Draw player
 
@@ -338,7 +318,7 @@ def game():
         render_text_with_outline(20, (SCREEN_HEIGHT - 60//SCALE), score_base_text, score_outline_text, 2, SCREEN)
 
         # Check if player reaches the top
-        if player.rect.y <= 0 and not player.freeze:
+        if player.rect.y <= 0:
             level_time = (pygame.time.get_ticks() - start_time) // 1000 # time taken to pass the level in seconds
             if player.bonus:
                 score += level*100 + int((level*100)/level_time)*2
@@ -347,8 +327,6 @@ def game():
                 score += level*100 + int((level*100)/level_time)*2
             level += 1  # Go to the next level
             player.reset_position()  # Reset player position
-            player.start_freeze(1000)
-
             start_time = pygame.time.get_ticks()
             cars = create_cars(level)  # Create new cars for the new level
             car_group.empty()  # Clear previous cars
