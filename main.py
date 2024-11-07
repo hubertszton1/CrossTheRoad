@@ -265,6 +265,7 @@ def game_over(surface, level, score):
     render_text_with_outline((SCREEN_WIDTH//2) - (play_again_width//2), (SCREEN_HEIGHT//2) + 100, play_again_base, play_again_outline, 2, surface)
 
     pygame.display.flip()
+    pygame.time.wait(1000)
 
     waiting = True
     while waiting:
