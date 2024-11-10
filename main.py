@@ -145,8 +145,15 @@ class Player(pygame.sprite.Sprite):
             self.freeze = False
 
     def animate(self):
-        if not self.freeze:
-            # Animation logic based on direction
+        if self.freeze:
+            self.image = IDLE[self.walk_count // 5]
+            if self.blink_counter % 20 < 10:
+                self.image.set_alpha(0)
+            else:
+                self.image.set_alpha(255)
+            self.blink_counter += 1
+        else:
+            self.image.set_alpha(255)
             if self.walk_count + 1 >= 40:
                 self.walk_count = 0
             if self.left:
@@ -169,17 +176,8 @@ class Player(pygame.sprite.Sprite):
                 self.image = WALK_DOWN[self.walk_count // 5]
             else:
                 self.image = IDLE[self.walk_count // 5]
-        else:
-            self.image = IDLE[0]
-            self.blink_counter += 1
-            if self.blink_counter % 20 < 10:  # Every 10 frames, toggle visibility
-                self.image.set_alpha(0)  # Invisible
-            else:
-                self.image.set_alpha(255) 
-
-        # Update the mask and rect
+            self.walk_count += 1
         self.mask = pygame.mask.from_surface(self.image)
-        self.walk_count += 1
 
     def reset_position(self):
         self.rect.x = ((SCREEN_WIDTH - PLAYER_WIDTH) // 2)
