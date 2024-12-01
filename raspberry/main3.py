@@ -207,20 +207,21 @@ class Player(pygame.sprite.Sprite):
 
 
 class Car(pygame.sprite.Sprite):
-    def __init__(self, x, y, speed, car_set, image_index):
+    def __init__(self, x, y, speed, direction, car_set, image_index):
         super().__init__()
         self.image = cars_images[car_set][image_index]
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.speed = speed
+        self.direction = direction
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
-        self.rect.x += self.speed
-        if self.rect.x > SCREEN_WIDTH:
+        self.rect.x += self.speed * self.direction
+        if self.direction == 1 and self.rect.x > SCREEN_WIDTH:
             self.rect.x = -self.rect.width
-        if self.rect.x < -self.rect.width:
+        elif self.direction == -1 and self.rect.x < -self.rect.width:
             self.rect.x = SCREEN_WIDTH
 
 
@@ -238,22 +239,25 @@ class Bone(pygame.sprite.Sprite):
 def create_cars(level):
     cars = []
     if level < 30:
-        car_set = level//10
+        car_set = level // 10
     else:
         car_set = 2
+
     for i in range(LANES):
-        y = (i + 1) * ROAD_HEIGHT + (20//SCALE)
-        num_cars_in_lane = random.randint(1, 1 + level//10)
-        lane_speed = random.randint(2, 5) + (level/10) - 1
+        y = (i + 1) * ROAD_HEIGHT + (20 // SCALE)
+        num_cars_in_lane = random.randint(1, 1 + level // 10)
+        lane_speed = random.randint(2, 5) + (level / 10) - 1
         car_positions = []
+
+        direction = 1 if i % 2 == 0 else -1  # Kierunek: naprzemiennie prawo/lewo
 
         while len(car_positions) < num_cars_in_lane:
             x_position = random.randint(0, SCREEN_WIDTH)
 
             if not any(abs(x_position - pos) < MIN_CAR_SPACING for pos in car_positions):
                 car_positions.append(x_position)
-                image_index = random.randint(0, len(cars_images[car_set])-1)
-                car = Car(x_position, y, lane_speed, car_set, image_index)
+                image_index = random.randint(0, len(cars_images[car_set]) - 1)
+                car = Car(x_position, y, lane_speed, direction, car_set, image_index)
                 cars.append(car)
 
     return cars
