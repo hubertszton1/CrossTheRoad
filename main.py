@@ -142,14 +142,6 @@ class Player(pygame.sprite.Sprite):
 
         self.animate()
 
-    def start_freeze(self, duration):
-        self.freeze = True
-        self.freeze_timer = pygame.time.get_ticks() + duration
-
-    def check_freeze(self):
-        if self.freeze and pygame.time.get_ticks() > self.freeze_timer:
-            self.freeze = False
-
     def animate(self):
         if self.freeze:
             self.image = IDLE[self.walk_count // 5]
