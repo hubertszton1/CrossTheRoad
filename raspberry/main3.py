@@ -209,7 +209,8 @@ class Player(pygame.sprite.Sprite):
 class Car(pygame.sprite.Sprite):
     def __init__(self, x, y, speed, direction, car_set, image_index):
         super().__init__()
-        self.image = cars_images[car_set][image_index]
+        self.image_original = cars_images[car_set][image_index]
+        self.image = pygame.transform.flip(self.image_original, direction == -1, False)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
