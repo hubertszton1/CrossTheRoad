@@ -126,60 +126,50 @@ class Player(pygame.sprite.Sprite):
                 self.directions['down'] = False
 
     def update(self):
-        if not self.freeze:
-            dx = dy = 0
-            if self.directions['left']:
-                dx -= self.speed
-            if self.directions['right']:
-                dx += self.speed
-            if self.directions['up']:
-                dy -= self.speed
-            if self.directions['down']:
-                dy += self.speed
+        dx = dy = 0
+        if self.directions['left']:
+            dx -= self.speed
+        if self.directions['right']:
+            dx += self.speed
+        if self.directions['up']:
+            dy -= self.speed
+        if self.directions['down']:
+            dy += self.speed
 
-            self.rect.x = max(0, min(self.rect.x + dx, SCREEN_WIDTH - self.width))
-            self.rect.y = max(0, min(self.rect.y + dy, SCREEN_HEIGHT - self.height))
+        self.rect.x = max(0, min(self.rect.x + dx, SCREEN_WIDTH - self.width))
+        self.rect.y = max(0, min(self.rect.y + dy, SCREEN_HEIGHT - self.height))
 
         self.animate()
 
     def animate(self):
-        if self.freeze:
+        if self.walk_count + 1 >= 40:
+            self.walk_count = 0
+        effective_left = self.directions['left'] and not self.directions['right']
+        effective_right = self.directions['right'] and not self.directions['left']
+        effective_up = self.directions['up'] and not self.directions['down']
+        effective_down = self.directions['down'] and not self.directions['up']
+        if not (effective_left or effective_right or effective_up or effective_down):
             self.image = IDLE[self.walk_count // 5]
-            if self.blink_counter % 20 < 10:
-                self.image.set_alpha(0)
-            else:
-                self.image.set_alpha(255)
-            self.blink_counter += 1
         else:
-            self.image.set_alpha(255)
-            if self.walk_count + 1 >= 40:
-                self.walk_count = 0
-            effective_left = self.directions['left'] and not self.directions['right']
-            effective_right = self.directions['right'] and not self.directions['left']
-            effective_up = self.directions['up'] and not self.directions['down']
-            effective_down = self.directions['down'] and not self.directions['up']
-            if not (effective_left or effective_right or effective_up or effective_down):
-                self.image = IDLE[self.walk_count // 5]
-            else:
-                if effective_left:
-                    if effective_up:
-                        self.image = WALK_UP_LEFT[self.walk_count // 5]
-                    elif effective_down:
-                        self.image = WALK_DOWN_LEFT[self.walk_count // 5]
-                    else:
-                        self.image = WALK_LEFT[self.walk_count // 5]
-                elif effective_right:
-                    if effective_up:
-                        self.image = WALK_UP_RIGHT[self.walk_count // 5]
-                    elif effective_down:
-                        self.image = WALK_DOWN_RIGHT[self.walk_count // 5]
-                    else:
-                        self.image = WALK_RIGHT[self.walk_count // 5]
-                elif effective_up:
-                    self.image = WALK_UP[self.walk_count // 5]
+            if effective_left:
+                if effective_up:
+                    self.image = WALK_UP_LEFT[self.walk_count // 5]
                 elif effective_down:
-                    self.image = WALK_DOWN[self.walk_count // 5]
-            self.walk_count += 1
+                    self.image = WALK_DOWN_LEFT[self.walk_count // 5]
+                else:
+                    self.image = WALK_LEFT[self.walk_count // 5]
+            elif effective_right:
+                if effective_up:
+                    self.image = WALK_UP_RIGHT[self.walk_count // 5]
+                elif effective_down:
+                    self.image = WALK_DOWN_RIGHT[self.walk_count // 5]
+                else:
+                    self.image = WALK_RIGHT[self.walk_count // 5]
+            elif effective_up:
+                self.image = WALK_UP[self.walk_count // 5]
+            elif effective_down:
+                self.image = WALK_DOWN[self.walk_count // 5]
+        self.walk_count += 1
         self.mask = pygame.mask.from_surface(self.image)
 
     def reset_position(self):
@@ -218,14 +208,12 @@ class Bone(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 30:
-        car_set = level//10
-    else:
-        car_set = 2
+    car_set = level//10
+
     for i in range(LANES):
         y = (i + 1) * ROAD_HEIGHT + (20//SCALE)
         num_cars_in_lane = random.randint(1, 1 + level//10)
-        lane_speed = random.randint(3, 6) + (level/10) - 1
+        lane_speed = random.randint(1, 4) + (level/10)
         car_positions = []
 
         while len(car_positions) < num_cars_in_lane:
@@ -233,7 +221,7 @@ def create_cars(level):
 
             if not any(abs(x_position - pos) < MIN_CAR_SPACING for pos in car_positions):
                 car_positions.append(x_position)
-                image_index = random.randint(0, len(cars_images[car_set])-1)
+                image_index = random.randint(0, len(cars_images[car_set]) - 1)
                 car = Car(x_position, y, lane_speed, car_set, image_index)
                 cars.append(car)
 
@@ -258,10 +246,12 @@ def render_text_with_outline(x, y,base, outline, size, surface):
     # base
     surface.blit(base, (x, y))
 
+
 def end_screen(surface, level, score, win):
     if win:
         result_base = GAME_OVER_FONT.render("YOU WIN", True, colors.BLUE)
         result_outline = GAME_OVER_FONT.render("YOU WIN", True, colors.YELLOW)
+        SCREEN.blit(backgrounds[2], (0, 0))
     else:
         result_base = GAME_OVER_FONT.render("GAME OVER", True, colors.RED)
         result_outline = GAME_OVER_FONT.render("GAME OVER", True, colors.BLACK)
@@ -309,7 +299,7 @@ def game():
     level = 1
     score = 0
 
-    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT), PLAYER_WIDTH, PLAYER_HEIGHT, round(7/SCALE))
+    player = Player((SCREEN_WIDTH - PLAYER_WIDTH) // 2, (SCREEN_HEIGHT - PLAYER_HEIGHT), PLAYER_WIDTH, PLAYER_HEIGHT, 4)
     player_group = pygame.sprite.Group(player)
     cars = create_cars(level)
     car_group = pygame.sprite.Group()
@@ -331,7 +321,6 @@ def game():
             player.handle_keys(event)
 
         keys = pygame.key.get_pressed()
-        player.check_freeze()
         player.update()
         player_group.draw(SCREEN)
 
@@ -342,9 +331,7 @@ def game():
         score_outline_text = FONT.render(f"Score  {score}", True, colors.BLACK)
         render_text_with_outline(20, (SCREEN_HEIGHT - 60//SCALE), score_base_text, score_outline_text, 2, SCREEN)
          
-        if player.rect.y <= 0 and not player.freeze:
-            if level == 30:
-                end_screen(SCREEN, level, score, win=True)
+        if player.rect.y <= 0:
             level_time = (pygame.time.get_ticks() - start_time) / 1000
             if player.bonus:
                 score += level*100 + int((level*100)/level_time)*2
@@ -352,8 +339,10 @@ def game():
             else:
                 score += level*100 + int((level*100)/level_time)
             level += 1
+            if level == 30:
+                end_screen(SCREEN, level, score, win=True)
+                return game()
             player.reset_position()
-            player.start_freeze(500)
             start_time = pygame.time.get_ticks()
             cars = create_cars(level)
             car_group.empty()

@@ -239,18 +239,15 @@ class Bone(pygame.sprite.Sprite):
 
 def create_cars(level):
     cars = []
-    if level < 30:
-        car_set = level // 10
-    else:
-        car_set = 2
+    car_set = level // 10
 
     for i in range(LANES):
         y = (i + 1) * ROAD_HEIGHT + (20 // SCALE)
         num_cars_in_lane = random.randint(1, 1 + level // 10)
-        lane_speed = random.randint(2, 5) + (level / 10) - 1
+        lane_speed = random.randint(1, 4) + (level / 10)
         car_positions = []
 
-        direction = 1 if i % 2 == 0 else -1  # Kierunek: naprzemiennie prawo/lewo
+        direction = 1 if i % 2 == 0 else -1
 
         while len(car_positions) < num_cars_in_lane:
             x_position = random.randint(0, SCREEN_WIDTH)
@@ -287,6 +284,7 @@ def end_screen(surface, level, score, win):
     if win:
         result_base = END_SCREEN_FONT.render("YOU WIN", True, colors.BLUE)
         result_outline = END_SCREEN_FONT.render("YOU WIN", True, colors.YELLOW)
+        SCREEN.blit(backgrounds[2], (0, 0))
     else:
         result_base = END_SCREEN_FONT.render("GAME OVER", True, colors.RED)
         result_outline = END_SCREEN_FONT.render(
@@ -378,8 +376,6 @@ def game():
             20, (SCREEN_HEIGHT - 60//SCALE), score_base_text, score_outline_text, 2, SCREEN)
 
         if player.rect.y <= 0:
-            if level == 30:
-                end_screen(SCREEN, level, score, win=True)
             level_time = (pygame.time.get_ticks() - start_time) / 1000
             if player.bonus:
                 score += level*100 + int((level*100)/level_time)*2
@@ -387,7 +383,10 @@ def game():
             else:
                 score += level*100 + int((level*100)/level_time)
             level += 1
-            player.reset_position()        
+            if level == 30:
+                end_screen(SCREEN, level, score, win=True)
+                return game()
+            player.reset_position()
             start_time = pygame.time.get_ticks()
             cars = create_cars(level)
             car_group.empty()
