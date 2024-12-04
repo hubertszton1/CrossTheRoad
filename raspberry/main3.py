@@ -207,9 +207,9 @@ class Player(pygame.sprite.Sprite):
 
 
 class Car(pygame.sprite.Sprite):
-    def __init__(self, x, y, speed, direction, car_set, image_index):
+    def __init__(self, x, y, speed, direction, car_set, color_index):
         super().__init__()
-        self.image_original = cars_images[car_set][image_index]
+        self.image_original = cars_images[car_set][color_index]
         self.image = pygame.transform.flip(self.image_original, direction == -1, False)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -257,8 +257,8 @@ def create_cars(level):
 
             if not any(abs(x_position - pos) < MIN_CAR_SPACING for pos in car_positions):
                 car_positions.append(x_position)
-                image_index = random.randint(0, len(cars_images[car_set]) - 1)
-                car = Car(x_position, y, lane_speed, direction, car_set, image_index)
+                color_index = random.randint(0, len(cars_images[car_set]) - 1)
+                car = Car(x_position, y, lane_speed, direction, car_set, color_index)
                 cars.append(car)
 
     return cars
