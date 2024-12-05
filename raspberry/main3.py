@@ -243,20 +243,18 @@ def create_cars(level):
 
     for i in range(LANES):
         y = (i + 1) * ROAD_HEIGHT + (20 // SCALE)
-        num_cars_in_lane = random.randint(1, 1 + level // 10)
-        lane_speed = random.randint(1, 4) + (level / 10)
-        car_positions = []
-
+        lane_speed = random.uniform(1, 4) + (level / 10) 
         direction = 1 if i % 2 == 0 else -1
+        num_cars_in_lane = random.randint(1, 1 + level // 10)
+        car_positions = set()
 
         while len(car_positions) < num_cars_in_lane:
             x_position = random.randint(0, SCREEN_WIDTH)
 
-            if not any(abs(x_position - pos) < MIN_CAR_SPACING for pos in car_positions):
-                car_positions.append(x_position)
+            if all(abs(x_position - pos) >= MIN_CAR_SPACING for pos in car_positions):
+                car_positions.add(x_position)
                 color_index = random.randint(0, len(cars_images[car_set]) - 1)
-                car = Car(x_position, y, lane_speed, direction, car_set, color_index)
-                cars.append(car)
+                cars.append(Car(x_position, y, lane_speed, direction, car_set, color_index))
 
     return cars
 
