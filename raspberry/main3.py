@@ -331,6 +331,7 @@ def end_screen(surface, level, score, win):
 def game():
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
+
     level = 1
     score = 0
 
@@ -345,14 +346,11 @@ def game():
     bone_group = pygame.sprite.Group(bone)
     exit_button_rect = pygame.Rect(
         SCREEN_WIDTH - 20, SCREEN_HEIGHT - 20, 20, 20)
+    
+    # MAIN LOOP
     running = True
     while running:
         clock.tick(FPS)
-        if level < 30:
-            SCREEN.blit(backgrounds[level//10], (0, 0))
-        else:
-            SCREEN.blit(backgrounds[2], (0, 0))
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -361,7 +359,7 @@ def game():
 
         player.update(keys)
         player_group.draw(SCREEN)
-
+        SCREEN.blit(backgrounds[level // 10], (0, 0))
         SCREEN.blit(exit_img, exit_button_rect)
 
         level_base_text = FONT.render(f"Level  {level}", True, colors.WHITE)
