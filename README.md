@@ -89,9 +89,9 @@ Here are some screenshots from the game:
 
 ## Demo Video
 
-Here’s a short preview of the CrossTheRoad game console in action:
+Watch the demo of the CrossTheRoad game console in action:
 
-![CrossTheRoad Demo](https://youtube.com/shorts/YtRap034jpY?feature=share)
+[![CrossTheRoad Demo](images/konsola.jpg)](https://www.youtube.com/shorts/12Ou5vSb2G8)
 
 ## Contributing
 
