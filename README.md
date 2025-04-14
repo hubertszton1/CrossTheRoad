@@ -14,7 +14,7 @@ CrossTheRoad is a 2D game built with Python and Pygame, designed to run on a cus
 
 The game is designed to run on a Raspberry Pi with external devices such as an LCD screen, buttons, and cooling. Below is the diagram showing how to connect these components:
 
-![Console Setup](images/rasp_i_ekran.png)
+![Console Setup](images/rasp_and_screen.png)
 
 ## GPIO Button Connections
 
@@ -89,9 +89,9 @@ Here are some screenshots from the game:
 
 ## Demo Video
 
-Watch the demo of the CrossTheRoad game console in action:
+Watch the CrossTheRoad game console in action! To see the video, click on the image below:
 
-[![CrossTheRoad Demo](images/konsola.jpg)](https://www.youtube.com/shorts/12Ou5vSb2G8)
+[![CrossTheRoad Demo](images/console.jpg)](https://www.youtube.com/shorts/12Ou5vSb2G8)
 
 ## Contributing
 
