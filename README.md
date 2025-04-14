@@ -87,6 +87,12 @@ Here are some screenshots from the game:
 - **You Win Screen**  
   ![You Win](images/you_win.png)
 
+## Demo Video
+
+Here’s a short preview of the CrossTheRoad game console in action:
+
+![CrossTheRoad Demo](https://youtube.com/shorts/YtRap034jpY?feature=share)
+
 ## Contributing
 
 Contributions are welcome! Feel free to submit issues or pull requests to improve the game.
